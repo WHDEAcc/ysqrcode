@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>彦纾餐厅 - YanShu Restaurant</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link rel="preconnect" href="https://gstatic.loli.net" crossorigin>
+    <link href="https://fonts.loli.net/css2?family=Nunito:wght@400;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -237,123 +237,6 @@
             z-index: 2;
         }
 
-        .menu-image.prev {
-            opacity: 1;
-            z-index: 1;
-        }
-
-        /* Futuristic transition effects */
-        .gallery-frame.transitioning .menu-image.active {
-            animation: futuristicIn 0.8s ease-out forwards;
-        }
-
-        .gallery-frame.transitioning .menu-image.prev {
-            animation: futuristicOut 0.8s ease-out forwards;
-        }
-
-        @keyframes futuristicIn {
-            0% {
-                opacity: 0;
-                clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
-                filter: brightness(2) saturate(0);
-            }
-            30% {
-                clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-                filter: brightness(1.5) saturate(0.5);
-            }
-            60% {
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-                filter: brightness(1.2) saturate(0.8);
-            }
-            100% {
-                opacity: 1;
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-                filter: brightness(1) saturate(1);
-            }
-        }
-
-        @keyframes futuristicOut {
-            0% {
-                opacity: 1;
-                transform: scale(1);
-                filter: brightness(1);
-            }
-            50% {
-                opacity: 0.5;
-                transform: scale(0.95);
-                filter: brightness(1.5) blur(2px);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.9);
-                filter: brightness(2) blur(5px);
-            }
-        }
-
-        /* Scan lines overlay for futuristic feel */
-        .scanlines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 255, 255, 0.03) 2px,
-                rgba(0, 255, 255, 0.03) 4px
-            );
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .gallery-frame.transitioning .scanlines {
-            opacity: 1;
-            animation: scanMove 0.8s linear;
-        }
-
-        @keyframes scanMove {
-            from { background-position: 0 0; }
-            to { background-position: 0 100px; }
-        }
-
-        /* Glitch effect during transition */
-        .glitch-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 11;
-            opacity: 0;
-        }
-
-        .gallery-frame.transitioning .glitch-overlay {
-            animation: glitchFlash 0.8s ease-out;
-        }
-
-        @keyframes glitchFlash {
-            0%, 100% { opacity: 0; }
-            10% { 
-                opacity: 1;
-                background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 255, 0.1) 50%, transparent 100%);
-                transform: translateX(-100%);
-            }
-            30% {
-                opacity: 1;
-                transform: translateX(100%);
-            }
-            50% {
-                opacity: 0.5;
-                background: linear-gradient(90deg, transparent 0%, rgba(255, 0, 255, 0.1) 50%, transparent 100%);
-            }
-            70% { opacity: 0; }
-        }
-
         /* Navigation */
         .nav-container {
             display: flex;
@@ -518,16 +401,14 @@
         <div class="gallery-container">
             <div class="rainbow-border"></div>
             <div class="gallery-frame" id="galleryFrame">
-                <img src="images/menu-0.png" alt="Menu 1" class="menu-image active" data-index="0">
-                <img src="images/menu-1.png" alt="Menu 2" class="menu-image" data-index="1">
-                <img src="images/menu-2.png" alt="Menu 3" class="menu-image" data-index="2">
-                <img src="images/menu-3.png" alt="Menu 4" class="menu-image" data-index="3">
-                <img src="images/menu-4.png" alt="Menu 5" class="menu-image" data-index="4">
-                <img src="images/menu-5.png" alt="Menu 6" class="menu-image" data-index="5">
-                <img src="images/menu-6.png" alt="Menu 7" class="menu-image" data-index="6">
-                <img src="images/menu-7.png" alt="Menu 8" class="menu-image" data-index="7">
-                <div class="scanlines"></div>
-                <div class="glitch-overlay"></div>
+                <img src="images/menu-0.jpg" alt="Menu 1" class="menu-image active" data-index="0">
+                <img src="images/menu-1.jpg" alt="Menu 2" class="menu-image" data-index="1" loading="lazy">
+                <img src="images/menu-2.jpg" alt="Menu 3" class="menu-image" data-index="2" loading="lazy">
+                <img src="images/menu-3.jpg" alt="Menu 4" class="menu-image" data-index="3" loading="lazy">
+                <img src="images/menu-4.jpg" alt="Menu 5" class="menu-image" data-index="4" loading="lazy">
+                <img src="images/menu-5.jpg" alt="Menu 6" class="menu-image" data-index="5" loading="lazy">
+                <img src="images/menu-6.jpg" alt="Menu 7" class="menu-image" data-index="6" loading="lazy">
+                <img src="images/menu-7.jpg" alt="Menu 8" class="menu-image" data-index="7" loading="lazy">
             </div>
 
             <div class="nav-container">
@@ -574,37 +455,18 @@
             document.getElementById('pageCounter').textContent = `${currentIndex + 1} / ${totalImages}`;
         }
 
-        // Navigate to specific image with futuristic transition
+        // Navigate to specific image
         function goToImage(index) {
-            if (isTransitioning || index === currentIndex) return;
+            if (index === currentIndex) return;
             
-            isTransitioning = true;
-            const frame = document.getElementById('galleryFrame');
             const images = document.querySelectorAll('.menu-image');
             
-            // Mark previous image
+            // Remove active from current
             images[currentIndex].classList.remove('active');
-            images[currentIndex].classList.add('prev');
             
-            // Update index
+            // Update index and activate new image
             currentIndex = index;
-            
-            // Activate new image
             images[currentIndex].classList.add('active');
-            
-            // Trigger transition animation
-            frame.classList.add('transitioning');
-            
-            // Clean up after transition
-            setTimeout(() => {
-                frame.classList.remove('transitioning');
-                images.forEach((img, i) => {
-                    if (i !== currentIndex) {
-                        img.classList.remove('active', 'prev');
-                    }
-                });
-                isTransitioning = false;
-            }, 800);
             
             updateDots();
             updateCounter();

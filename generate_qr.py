@@ -92,8 +92,35 @@ def create_totoro_image(size=150):
     
     return img
 
-def generate_qr_with_totoro(url, output_path):
-    """Generate a QR code with Totoro in the center."""
+def create_circular_photo(photo_path, size=150):
+    """Load a photo and crop it into a circle."""
+    # Open and resize the photo
+    photo = Image.open(photo_path).convert('RGBA')
+    
+    # Crop to square (center crop)
+    width, height = photo.size
+    min_dim = min(width, height)
+    left = (width - min_dim) // 2
+    top = (height - min_dim) // 2
+    photo = photo.crop((left, top, left + min_dim, top + min_dim))
+    
+    # Resize to target size
+    photo = photo.resize((size, size), Image.LANCZOS)
+    
+    # Create circular mask
+    mask = Image.new('L', (size, size), 0)
+    mask_draw = ImageDraw.Draw(mask)
+    mask_draw.ellipse([0, 0, size, size], fill=255)
+    
+    # Apply mask to create circular image
+    circular = Image.new('RGBA', (size, size), (255, 255, 255, 0))
+    circular.paste(photo, (0, 0), mask)
+    
+    return circular
+
+
+def generate_qr_with_photo(url, output_path, photo_path):
+    """Generate a QR code with a circular photo in the center."""
     
     # Create QR code with high error correction (allows for center logo)
     qr = qrcode.QRCode(
@@ -111,25 +138,25 @@ def generate_qr_with_totoro(url, output_path):
     # Get QR code size
     qr_width, qr_height = qr_img.size
     
-    # Create Totoro image (about 25% of QR code size for safe embedding)
-    totoro_size = int(min(qr_width, qr_height) * 0.28)
-    totoro = create_totoro_image(totoro_size)
+    # Create circular photo (about 25% of QR code size for safe embedding)
+    photo_size = int(min(qr_width, qr_height) * 0.28)
+    circular_photo = create_circular_photo(photo_path, photo_size)
     
-    # Create white circular background for Totoro
-    bg_size = int(totoro_size * 1.15)
+    # Create white circular background
+    bg_size = int(photo_size * 1.15)
     bg = Image.new('RGBA', (bg_size, bg_size), (255, 255, 255, 0))
     bg_draw = ImageDraw.Draw(bg)
     bg_draw.ellipse([0, 0, bg_size, bg_size], fill=(255, 255, 255, 255))
     
     # Calculate center position
     pos_bg = ((qr_width - bg_size) // 2, (qr_height - bg_size) // 2)
-    pos_totoro = ((qr_width - totoro_size) // 2, (qr_height - totoro_size) // 2)
+    pos_photo = ((qr_width - photo_size) // 2, (qr_height - photo_size) // 2)
     
     # Paste white background circle first
     qr_img.paste(bg, pos_bg, bg)
     
-    # Paste Totoro on top
-    qr_img.paste(totoro, pos_totoro, totoro)
+    # Paste circular photo on top
+    qr_img.paste(circular_photo, pos_photo, circular_photo)
     
     # Save the result
     qr_img.save(output_path, 'PNG')
@@ -140,12 +167,13 @@ def generate_qr_with_totoro(url, output_path):
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(script_dir, "images", "qrcode-totoro.png")
+    photo_path = os.path.join(script_dir, "images", "yangshuo-portrait.png")
     
     # Ensure images directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     print(f"Generating QR code for: {URL}")
-    generate_qr_with_totoro(URL, output_path)
+    generate_qr_with_photo(URL, output_path, photo_path)
     print("Done!")
     print(f"\nThe QR code links to: {URL}")
     print("After pushing to GitHub and enabling GitHub Pages, the QR code will work!")
