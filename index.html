@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彦纾餐厅 - YanShu Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', 'ZCOOL KuaiLe', sans-serif;
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe4f3 50%, #e4f3ff 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Floating decorations */
+        .decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            font-size: 20px;
+            animation: float 3s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        .star:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 20%; right: 10%; animation-delay: 0.5s; }
+        .star:nth-child(3) { top: 60%; left: 8%; animation-delay: 1s; }
+        .star:nth-child(4) { top: 80%; right: 5%; animation-delay: 1.5s; }
+        .star:nth-child(5) { top: 40%; left: 3%; animation-delay: 2s; }
+        .star:nth-child(6) { top: 70%; right: 15%; animation-delay: 0.3s; }
+        .star:nth-child(7) { top: 15%; left: 15%; animation-delay: 0.8s; }
+        .star:nth-child(8) { top: 50%; right: 3%; animation-delay: 1.2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(10deg); }
+        }
+
+        /* Welcome screen */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ffd700 50%, #87ceeb 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .welcome-screen.hidden {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .portrait-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .portrait {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center top;
+            border: 8px solid #fff;
+            box-shadow: 
+                0 0 0 4px #ffb6c1,
+                0 0 30px rgba(255, 182, 193, 0.5),
+                0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .portrait-ring {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            border: 4px dashed #ffd700;
+            border-radius: 50%;
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .welcome-title {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 3px 3px 0 #ff6b9d, 6px 6px 0 rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            animation: wiggle 1s ease-in-out infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: #fff;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .enter-btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa500 100%);
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.3rem;
+            font-family: 'ZCOOL KuaiLe', cursive;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enter-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 157, 0.5);
+        }
+
+        .enter-btn::after {
+            content: '✨';
+            position: absolute;
+            right: 15px;
+            animation: sparkle 0.8s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Main content */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .title {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #ff6b9d, #ffa500, #87ceeb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        /* Gallery */
+        .gallery-container {
+            position: relative;
+            background: #fff;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 
+                0 20px 60px rgba(255, 107, 157, 0.2),
+                0 0 0 5px rgba(255, 215, 0, 0.3);
+            margin: 20px 0;
+        }
+
+        .gallery-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9/16;
+            max-height: 70vh;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .menu-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #fff;
+            opacity: 0;
+            transition: none;
+        }
+
+        .menu-image.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .menu-image.prev {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        /* Futuristic transition effects */
+        .gallery-frame.transitioning .menu-image.active {
+            animation: futuristicIn 0.8s ease-out forwards;
+        }
+
+        .gallery-frame.transitioning .menu-image.prev {
+            animation: futuristicOut 0.8s ease-out forwards;
+        }
+
+        @keyframes futuristicIn {
+            0% {
+                opacity: 0;
+                clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+                filter: brightness(2) saturate(0);
+            }
+            30% {
+                clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+                filter: brightness(1.5) saturate(0.5);
+            }
+            60% {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                filter: brightness(1.2) saturate(0.8);
+            }
+            100% {
+                opacity: 1;
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                filter: brightness(1) saturate(1);
+            }
+        }
+
+        @keyframes futuristicOut {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.95);
+                filter: brightness(1.5) blur(2px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.9);
+                filter: brightness(2) blur(5px);
+            }
+        }
+
+        /* Scan lines overlay for futuristic feel */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 255, 0.03) 2px,
+                rgba(0, 255, 255, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-frame.transitioning .scanlines {
+            opacity: 1;
+            animation: scanMove 0.8s linear;
+        }
+
+        @keyframes scanMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 100px; }
+        }
+
+        /* Glitch effect during transition */
+        .glitch-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 11;
+            opacity: 0;
+        }
+
+        .gallery-frame.transitioning .glitch-overlay {
+            animation: glitchFlash 0.8s ease-out;
+        }
+
+        @keyframes glitchFlash {
+            0%, 100% { opacity: 0; }
+            10% { 
+                opacity: 1;
+                background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 255, 0.1) 50%, transparent 100%);
+                transform: translateX(-100%);
+            }
+            30% {
+                opacity: 1;
+                transform: translateX(100%);
+            }
+            50% {
+                opacity: 0.5;
+                background: linear-gradient(90deg, transparent 0%, rgba(255, 0, 255, 0.1) 50%, transparent 100%);
+            }
+            70% { opacity: 0; }
+        }
+
+        /* Navigation */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa500 100%);
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 107, 157, 0.5);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Dots indicator */
+        .dots-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa500 100%);
+            transform: scale(1.3);
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+
+        .dot:hover {
+            transform: scale(1.2);
+        }
+
+        /* Page counter */
+        .page-counter {
+            text-align: center;
+            margin-top: 15px;
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 1.2rem;
+            color: #ff6b9d;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .footer-emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Rainbow border animation */
+        .rainbow-border {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 33px;
+            background: linear-gradient(45deg, #ff6b9d, #ffa500, #ffd700, #87ceeb, #ff6b9d);
+            background-size: 400% 400%;
+            z-index: -1;
+            animation: rainbow 3s ease infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+            .portrait {
+                width: 150px;
+                height: 150px;
+            }
+            .title {
+                font-size: 2rem;
+            }
+            .nav-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating decorations -->
+    <div class="decorations">
+        <span class="star">⭐</span>
+        <span class="star">🌟</span>
+        <span class="star">✨</span>
+        <span class="star">💫</span>
+        <span class="star">🎀</span>
+        <span class="star">🌈</span>
+        <span class="star">🎈</span>
+        <span class="star">🍭</span>
+    </div>
+
+    <!-- Welcome screen with Yangshuo's portrait -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="portrait-container">
+            <div class="portrait-ring"></div>
+            <img src="images/yangshuo-portrait.png" alt="彦纾" class="portrait">
+        </div>
+        <h1 class="welcome-title">欢迎来到彦纾餐厅！</h1>
+        <p class="welcome-subtitle">Welcome to YanShu Restaurant! 🍽️</p>
+        <button class="enter-btn" onclick="enterGallery()">
+            进入菜单 Enter
+        </button>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <header class="header">
+            <h1 class="title">🍜 彦纾餐厅菜单 🍰</h1>
+            <p class="subtitle">YanShu Restaurant Menu</p>
+        </header>
+
+        <div class="gallery-container">
+            <div class="rainbow-border"></div>
+            <div class="gallery-frame" id="galleryFrame">
+                <img src="images/menu-0.png" alt="Menu 1" class="menu-image active" data-index="0">
+                <img src="images/menu-1.png" alt="Menu 2" class="menu-image" data-index="1">
+                <img src="images/menu-2.png" alt="Menu 3" class="menu-image" data-index="2">
+                <img src="images/menu-3.png" alt="Menu 4" class="menu-image" data-index="3">
+                <img src="images/menu-4.png" alt="Menu 5" class="menu-image" data-index="4">
+                <img src="images/menu-5.png" alt="Menu 6" class="menu-image" data-index="5">
+                <img src="images/menu-6.png" alt="Menu 7" class="menu-image" data-index="6">
+                <img src="images/menu-7.png" alt="Menu 8" class="menu-image" data-index="7">
+                <div class="scanlines"></div>
+                <div class="glitch-overlay"></div>
+            </div>
+
+            <div class="nav-container">
+                <button class="nav-btn" onclick="prevImage()">◀</button>
+                <div class="dots-container" id="dotsContainer"></div>
+                <button class="nav-btn" onclick="nextImage()">▶</button>
+            </div>
+
+            <div class="page-counter" id="pageCounter">1 / 8</div>
+        </div>
+
+        <footer class="footer">
+            <span class="footer-emoji">🧸💕</span>
+            Made with love by 彦纾
+        </footer>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const totalImages = 8;
+        let isTransitioning = false;
+
+        // Initialize dots
+        function initDots() {
+            const container = document.getElementById('dotsContainer');
+            for (let i = 0; i < totalImages; i++) {
+                const dot = document.createElement('div');
+                dot.className = `dot ${i === 0 ? 'active' : ''}`;
+                dot.onclick = () => goToImage(i);
+                container.appendChild(dot);
+            }
+        }
+
+        // Update dots
+        function updateDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        // Update page counter
+        function updateCounter() {
+            document.getElementById('pageCounter').textContent = `${currentIndex + 1} / ${totalImages}`;
+        }
+
+        // Navigate to specific image with futuristic transition
+        function goToImage(index) {
+            if (isTransitioning || index === currentIndex) return;
+            
+            isTransitioning = true;
+            const frame = document.getElementById('galleryFrame');
+            const images = document.querySelectorAll('.menu-image');
+            
+            // Mark previous image
+            images[currentIndex].classList.remove('active');
+            images[currentIndex].classList.add('prev');
+            
+            // Update index
+            currentIndex = index;
+            
+            // Activate new image
+            images[currentIndex].classList.add('active');
+            
+            // Trigger transition animation
+            frame.classList.add('transitioning');
+            
+            // Clean up after transition
+            setTimeout(() => {
+                frame.classList.remove('transitioning');
+                images.forEach((img, i) => {
+                    if (i !== currentIndex) {
+                        img.classList.remove('active', 'prev');
+                    }
+                });
+                isTransitioning = false;
+            }, 800);
+            
+            updateDots();
+            updateCounter();
+        }
+
+        // Previous image
+        function prevImage() {
+            const newIndex = (currentIndex - 1 + totalImages) % totalImages;
+            goToImage(newIndex);
+        }
+
+        // Next image
+        function nextImage() {
+            const newIndex = (currentIndex + 1) % totalImages;
+            goToImage(newIndex);
+        }
+
+        // Enter gallery (hide welcome screen)
+        function enterGallery() {
+            const welcome = document.getElementById('welcomeScreen');
+            welcome.classList.add('hidden');
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+                welcome.style.display = 'none';
+            }, 800);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'ArrowRight') nextImage();
+            if (e.key === 'Enter' || e.key === ' ') {
+                const welcome = document.getElementById('welcomeScreen');
+                if (!welcome.classList.contains('hidden')) {
+                    enterGallery();
+                }
+            }
+        });
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextImage();
+                } else {
+                    prevImage();
+                }
+            }
+        }
+
+        // Initialize
+        initDots();
+    </script>
+</body>
+</html>
