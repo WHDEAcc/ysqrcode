@@ -32,29 +32,36 @@ pip install qrcode pillow
 python -m http.server 8000
 ```
 
+### Deploy to GitHub Pages
+```bash
+# One-command deploy: add, commit, and push all changes
+git add -A && git commit -m "Update site" && git push
+```
+
 ## Architecture
 
 ### Frontend (`index.html`)
 Single-page application with two main views:
 1. **Welcome Screen** - Full-screen overlay with portrait, animated entrance, dismissible via button/keyboard/tap
-2. **Menu Gallery** - Image carousel with 8 menu pages, futuristic CSS transitions (glitch effects, scan lines)
+2. **Menu Gallery** - Image carousel with 8 menu pages
 
 Key JavaScript functions:
 - `enterGallery()` - Transitions from welcome to gallery
-- `goToImage(index)` - Handles image transitions with animation locking
+- `goToImage(index)` - Handles image switching
 - Touch/swipe and keyboard navigation built-in
 
 ### QR Code Generator (`generate_qr.py`)
-- `create_totoro_image(size)` - Programmatically draws Totoro character using PIL
-- `generate_qr_with_totoro(url, output_path)` - Creates QR with high error correction (30%) to allow center logo embedding
+- `create_circular_photo(photo_path, size)` - Crops photo into a circle
+- `generate_qr_with_photo(url, output_path, photo_path)` - Creates QR with high error correction (30%) and circular photo in center
 
 ### Image Assets (`images/`)
-- `yangshuo-portrait.png` - Welcome screen portrait
-- `menu-0.png` through `menu-7.png` - Menu page images (9:16 aspect ratio expected)
-- `qrcode-totoro.png` - Generated QR code
+- `yangshuo-portrait.png` - Welcome screen portrait (also used in QR code center)
+- `menu-0.jpg` through `menu-7.jpg` - Compressed JPEG menu images (9:16 aspect ratio)
+- `qrcode-totoro.png` - Generated QR code with portrait
 
 ## Key Patterns
 
-- Menu images are numbered sequentially (`menu-0.png` to `menu-7.png`). To add/remove pages, update both the image files and `totalImages` constant in `index.html`
+- Menu images are numbered sequentially (`menu-0.jpg` to `menu-7.jpg`). To add/remove pages, update both the image files and `totalImages` constant in `index.html`
+- Uses `fonts.loli.net` (China-accessible mirror) instead of Google Fonts
 - QR code URL is hardcoded in `generate_qr.py` (`URL` variable at top of file)
 - All CSS animations and styles are inline in `index.html` (no external stylesheets)
