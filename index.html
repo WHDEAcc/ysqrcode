@@ -561,8 +561,12 @@
             galleryInitialized = true;
             
             showSpinner();
+            // Load first image immediately, then preload ALL others
             loadImage(0).then(() => {
-                preloadAdjacent();
+                // Preload all remaining images in background
+                for (let i = 1; i < totalImages; i++) {
+                    loadImage(i);
+                }
             });
         }
 
