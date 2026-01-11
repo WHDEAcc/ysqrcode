@@ -7,6 +7,12 @@
     <link rel="preconnect" href="https://fonts.loli.net">
     <link rel="preconnect" href="https://gstatic.loli.net" crossorigin>
     <link href="https://fonts.loli.net/css2?family=Nunito:wght@400;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <!-- Preload hero image for faster first paint on mobile -->
+    <link rel="preload" as="image"
+          href="images/menu-0-900.webp"
+          imagesrcset="images/menu-0-450.webp 450w, images/menu-0-900.webp 900w, images/menu-0-1350.webp 1350w"
+          imagesizes="(max-width: 600px) 90vw, 900px"
+          fetchpriority="high">
     <style>
         * {
             margin: 0;
@@ -444,7 +450,7 @@
                 <button class="nav-btn" onclick="nextImage()">▶</button>
             </div>
 
-            <div class="page-counter" id="pageCounter">1 / 8</div>
+            <div class="page-counter" id="pageCounter">1 / 7</div>
         </div>
 
         <footer class="footer">
@@ -455,7 +461,7 @@
 
     <script>
         let currentIndex = 0;
-        const totalImages = 8;
+        const totalImages = 7;
         const loadedImages = new Set();
         let galleryInitialized = false;
 
@@ -483,48 +489,75 @@
             document.getElementById('pageCounter').textContent = `${currentIndex + 1} / ${totalImages}`;
         }
 
-        // Load a single image with responsive srcset + WebP
+        // Lite mode via URL (?lite=1) to optimize for slow networks (e.g., iPhone hotspot).
+        const paramsGlobal = new URLSearchParams(window.location.search);
+        const LITE_MODE = paramsGlobal.get('lite') === '1';
+
+        // FORCE FAST on phones: no srcset/picture, always smallest WebP (supported on iOS 14+).
+        const IS_PHONE = /iPhone|Android|iPod|iPad/i.test(navigator.userAgent) || window.matchMedia('(max-width: 600px)').matches;
+
+        // Load a single image
         function loadImage(index) {
             if (loadedImages.has(index)) return Promise.resolve();
             
             return new Promise((resolve) => {
                 const frame = document.getElementById('galleryFrame');
-                const picture = document.createElement('picture');
-                picture.className = 'menu-image' + (index === currentIndex ? ' active' : '');
-                picture.dataset.index = index;
-                
-                // WebP source (modern browsers)
-                const webpSource = document.createElement('source');
-                webpSource.type = 'image/webp';
-                webpSource.srcset = `images/menu-${index}-450.webp 450w, images/menu-${index}-900.webp 900w, images/menu-${index}-1350.webp 1350w`;
-                webpSource.sizes = '(max-width: 500px) 450px, (max-width: 1000px) 900px, 1350px';
-                
-                // JPEG fallback
+                const wrapper = document.createElement('div');
+                wrapper.className = 'menu-image' + (index === currentIndex ? ' active' : '');
+                wrapper.dataset.index = index;
+
+                const highPriority = index === currentIndex ? 'high' : 'auto';
+
                 const img = document.createElement('img');
-                img.srcset = `images/menu-${index}-450.jpg 450w, images/menu-${index}-900.jpg 900w, images/menu-${index}-1350.jpg 1350w`;
-                img.sizes = '(max-width: 500px) 450px, (max-width: 1000px) 900px, 1350px';
-                img.src = `images/menu-${index}-900.jpg`; // fallback for old browsers
                 img.alt = `Menu ${index + 1}`;
                 img.loading = index === 0 ? 'eager' : 'lazy';
-                
+                img.decoding = 'async';
+                img.setAttribute('fetchpriority', highPriority);
+
+                if (IS_PHONE || LITE_MODE) {
+                    // Fast path for phones: smallest WebP only, no srcset.
+                    img.src = `images/menu-${index}-450.webp`;
+                } else {
+                    // Desktop: keep decent quality (900/1350) with WebP priority fallback to JPEG.
+                    const picture = document.createElement('picture');
+                    const webp = document.createElement('source');
+                    webp.type = 'image/webp';
+                    webp.srcset = `images/menu-${index}-900.webp 900w, images/menu-${index}-1350.webp 1350w`;
+                    webp.sizes = 'min(900px, 90vw)';
+                    picture.appendChild(webp);
+
+                    img.srcset = `images/menu-${index}-900.jpg 900w, images/menu-${index}-1350.jpg 1350w`;
+                    img.sizes = 'min(900px, 90vw)';
+                    img.src = `images/menu-${index}-900.jpg`;
+                    picture.appendChild(img);
+                    wrapper.appendChild(picture);
+                }
+
+                if (!(IS_PHONE || LITE_MODE)) {
+                    // Already appended via picture
+                } else {
+                    // Phone path: append img directly
+                    wrapper.appendChild(img);
+                }
+
                 img.onload = () => {
                     loadedImages.add(index);
                     hideSpinner();
                     resolve();
                 };
-                
-                picture.appendChild(webpSource);
-                picture.appendChild(img);
-                frame.appendChild(picture);
+
+                frame.appendChild(wrapper);
             });
         }
 
         // Preload adjacent images
         function preloadAdjacent() {
-            const prev = (currentIndex - 1 + totalImages) % totalImages;
+            // Phones: never preload to keep bandwidth minimal
+            if (IS_PHONE || LITE_MODE) return;
             const next = (currentIndex + 1) % totalImages;
-            loadImage(prev);
             loadImage(next);
+            const prev = (currentIndex - 1 + totalImages) % totalImages;
+            loadImage(prev);
         }
 
         // Show/hide loading spinner
@@ -580,12 +613,9 @@
             galleryInitialized = true;
             
             showSpinner();
-            // Load first image immediately, then preload ALL others
-            loadImage(0).then(() => {
-                // Preload all remaining images in background
-                for (let i = 1; i < totalImages; i++) {
-                    loadImage(i);
-                }
+            // Load currentIndex image immediately, then preload only adjacent to reduce initial bandwidth
+            loadImage(currentIndex).then(() => {
+                preloadAdjacent();
             });
         }
 
@@ -614,6 +644,27 @@
                 }
             }
         });
+
+        // Auto-enter via URL: ?enter=1 or hash #gallery; optional page p=0..7
+        function maybeAutoEnterFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const hash = window.location.hash || '';
+            if (params.get('enter') === '1' || params.get('auto') === '1' || hash.includes('gallery')) {
+                const p = params.get('p') || params.get('page');
+                if (p !== null && !Number.isNaN(parseInt(p))) {
+                    const idx = Math.max(0, Math.min(totalImages - 1, parseInt(p)));
+                    currentIndex = idx;
+                }
+                enterGallery();
+            }
+        }
+
+if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', maybeAutoEnterFromURL);
+        } else {
+            // DOM already parsed
+            maybeAutoEnterFromURL();
+        }
 
         // Touch/swipe support
         let touchStartX = 0;
