@@ -8,8 +8,8 @@ import qrcode
 from PIL import Image, ImageDraw
 import os
 
-# GitHub Pages URL (will be updated after deployment)
-URL = "https://whdeacc.github.io/ysqrcode/"
+# Primary site for QR code – Cloudflare Pages (global CDN, fast everywhere)
+URL = "https://ysqrcode.pages.dev/"
 
 def create_totoro_image(size=150):
     """Create a cute Totoro character image."""
@@ -176,7 +176,7 @@ def main():
     generate_qr_with_photo(URL, output_path, photo_path)
     print("Done!")
     print(f"\nThe QR code links to: {URL}")
-    print("After pushing to GitHub and enabling GitHub Pages, the QR code will work!")
+    print("After pushing and enabling your Pages service (Gitee/GitHub), the QR code will work!")
 
 if __name__ == "__main__":
     main()
