@@ -229,12 +229,40 @@
             object-fit: contain;
             background: #fff;
             opacity: 0;
-            transition: none;
+            transition: opacity 0.3s ease;
         }
 
         .menu-image.active {
             opacity: 1;
             z-index: 2;
+        }
+
+        .menu-image.loading {
+            opacity: 0;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b9d;
+            border-radius: 50%;
+            animation: spin-loader 1s linear infinite;
+            z-index: 1;
+        }
+
+        .loading-spinner.hidden {
+            display: none;
+        }
+
+        @keyframes spin-loader {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         /* Navigation */
@@ -382,7 +410,7 @@
     <div class="welcome-screen" id="welcomeScreen">
         <div class="portrait-container">
             <div class="portrait-ring"></div>
-            <img src="images/yangshuo-portrait.png" alt="彦纾" class="portrait">
+            <img src="images/yangshuo-portrait.jpg" alt="彦纾" class="portrait">
         </div>
         <h1 class="welcome-title">欢迎来到彦纾餐厅！</h1>
         <p class="welcome-subtitle">Welcome to YanShu Restaurant! 🍽️</p>
@@ -401,14 +429,8 @@
         <div class="gallery-container">
             <div class="rainbow-border"></div>
             <div class="gallery-frame" id="galleryFrame">
-                <img src="images/menu-0.jpg" alt="Menu 1" class="menu-image active" data-index="0">
-                <img src="images/menu-1.jpg" alt="Menu 2" class="menu-image" data-index="1" loading="lazy">
-                <img src="images/menu-2.jpg" alt="Menu 3" class="menu-image" data-index="2" loading="lazy">
-                <img src="images/menu-3.jpg" alt="Menu 4" class="menu-image" data-index="3" loading="lazy">
-                <img src="images/menu-4.jpg" alt="Menu 5" class="menu-image" data-index="4" loading="lazy">
-                <img src="images/menu-5.jpg" alt="Menu 6" class="menu-image" data-index="5" loading="lazy">
-                <img src="images/menu-6.jpg" alt="Menu 7" class="menu-image" data-index="6" loading="lazy">
-                <img src="images/menu-7.jpg" alt="Menu 8" class="menu-image" data-index="7" loading="lazy">
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                <!-- Images loaded dynamically via JavaScript -->
             </div>
 
             <div class="nav-container">
@@ -429,7 +451,8 @@
     <script>
         let currentIndex = 0;
         const totalImages = 8;
-        let isTransitioning = false;
+        const loadedImages = new Set();
+        let galleryInitialized = false;
 
         // Initialize dots
         function initDots() {
@@ -455,18 +478,66 @@
             document.getElementById('pageCounter').textContent = `${currentIndex + 1} / ${totalImages}`;
         }
 
+        // Load a single image
+        function loadImage(index) {
+            if (loadedImages.has(index)) return Promise.resolve();
+            
+            return new Promise((resolve) => {
+                const frame = document.getElementById('galleryFrame');
+                const img = document.createElement('img');
+                img.className = 'menu-image' + (index === currentIndex ? ' active' : '');
+                img.alt = `Menu ${index + 1}`;
+                img.dataset.index = index;
+                
+                img.onload = () => {
+                    loadedImages.add(index);
+                    hideSpinner();
+                    resolve();
+                };
+                
+                img.src = `images/menu-${index}.jpg`;
+                frame.appendChild(img);
+            });
+        }
+
+        // Preload adjacent images
+        function preloadAdjacent() {
+            const prev = (currentIndex - 1 + totalImages) % totalImages;
+            const next = (currentIndex + 1) % totalImages;
+            loadImage(prev);
+            loadImage(next);
+        }
+
+        // Show/hide loading spinner
+        function showSpinner() {
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+        }
+
+        function hideSpinner() {
+            document.getElementById('loadingSpinner').classList.add('hidden');
+        }
+
         // Navigate to specific image
         function goToImage(index) {
             if (index === currentIndex) return;
             
-            const images = document.querySelectorAll('.menu-image');
-            
             // Remove active from current
-            images[currentIndex].classList.remove('active');
+            const currentImg = document.querySelector('.menu-image.active');
+            if (currentImg) currentImg.classList.remove('active');
             
-            // Update index and activate new image
+            // Update index
             currentIndex = index;
-            images[currentIndex].classList.add('active');
+            
+            // Load target image if not loaded
+            if (!loadedImages.has(index)) {
+                showSpinner();
+            }
+            
+            loadImage(index).then(() => {
+                const targetImg = document.querySelector(`.menu-image[data-index="${index}"]`);
+                if (targetImg) targetImg.classList.add('active');
+                preloadAdjacent();
+            });
             
             updateDots();
             updateCounter();
@@ -484,10 +555,24 @@
             goToImage(newIndex);
         }
 
+        // Initialize gallery (called after entering)
+        function initGallery() {
+            if (galleryInitialized) return;
+            galleryInitialized = true;
+            
+            showSpinner();
+            loadImage(0).then(() => {
+                preloadAdjacent();
+            });
+        }
+
         // Enter gallery (hide welcome screen)
         function enterGallery() {
             const welcome = document.getElementById('welcomeScreen');
             welcome.classList.add('hidden');
+            
+            // Start loading images only when entering gallery
+            initGallery();
             
             // Remove from DOM after animation
             setTimeout(() => {
@@ -533,7 +618,7 @@
             }
         }
 
-        // Initialize
+        // Initialize dots only (images loaded on enter)
         initDots();
     </script>
 </body>
