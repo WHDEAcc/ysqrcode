@@ -10,7 +10,7 @@ A fun, childlike landing page for YanShu Restaurant featuring:
 
 ## Live Demo
 
-Visit: https://whdeacc.github.io/ysqrcode/
+Visit: https://ysqrcode.pages.dev/
 
 ## QR Code
 

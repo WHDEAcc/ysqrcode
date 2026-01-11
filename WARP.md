@@ -6,7 +6,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 YanShu Restaurant (彦纾餐厅) - A fun, childlike landing page featuring a welcome screen with portrait, interactive menu gallery with futuristic transitions, and a custom Totoro QR code. Hosted on GitHub Pages.
 
-**Live URL**: https://whdeacc.github.io/ysqrcode/
+**Live URL**: https://ysqrcode.pages.dev/
 
 ## Tech Stack
 

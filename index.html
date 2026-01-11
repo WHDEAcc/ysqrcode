@@ -226,10 +226,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
             background: #fff;
             opacity: 0;
             transition: opacity 0.3s ease;
+        }
+
+        .menu-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .menu-image.active {
@@ -478,16 +483,29 @@
             document.getElementById('pageCounter').textContent = `${currentIndex + 1} / ${totalImages}`;
         }
 
-        // Load a single image
+        // Load a single image with responsive srcset + WebP
         function loadImage(index) {
             if (loadedImages.has(index)) return Promise.resolve();
             
             return new Promise((resolve) => {
                 const frame = document.getElementById('galleryFrame');
+                const picture = document.createElement('picture');
+                picture.className = 'menu-image' + (index === currentIndex ? ' active' : '');
+                picture.dataset.index = index;
+                
+                // WebP source (modern browsers)
+                const webpSource = document.createElement('source');
+                webpSource.type = 'image/webp';
+                webpSource.srcset = `images/menu-${index}-450.webp 450w, images/menu-${index}-900.webp 900w, images/menu-${index}-1350.webp 1350w`;
+                webpSource.sizes = '(max-width: 500px) 450px, (max-width: 1000px) 900px, 1350px';
+                
+                // JPEG fallback
                 const img = document.createElement('img');
-                img.className = 'menu-image' + (index === currentIndex ? ' active' : '');
+                img.srcset = `images/menu-${index}-450.jpg 450w, images/menu-${index}-900.jpg 900w, images/menu-${index}-1350.jpg 1350w`;
+                img.sizes = '(max-width: 500px) 450px, (max-width: 1000px) 900px, 1350px';
+                img.src = `images/menu-${index}-900.jpg`; // fallback for old browsers
                 img.alt = `Menu ${index + 1}`;
-                img.dataset.index = index;
+                img.loading = index === 0 ? 'eager' : 'lazy';
                 
                 img.onload = () => {
                     loadedImages.add(index);
@@ -495,8 +513,9 @@
                     resolve();
                 };
                 
-                img.src = `images/menu-${index}.jpg`;
-                frame.appendChild(img);
+                picture.appendChild(webpSource);
+                picture.appendChild(img);
+                frame.appendChild(picture);
             });
         }
 
