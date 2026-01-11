@@ -514,9 +514,12 @@
                 img.decoding = 'async';
                 img.setAttribute('fetchpriority', highPriority);
 
-                if (IS_PHONE || LITE_MODE) {
-                    // Fast path for phones: smallest WebP only, no srcset.
+                if (LITE_MODE) {
+                    // Lite mode: smallest WebP only
                     img.src = `images/menu-${index}-450.webp`;
+                } else if (IS_PHONE) {
+                    // Phones: higher clarity but still fast
+                    img.src = `images/menu-${index}-900.webp`;
                 } else {
                     // Desktop: keep decent quality (900/1350) with WebP priority fallback to JPEG.
                     const picture = document.createElement('picture');
