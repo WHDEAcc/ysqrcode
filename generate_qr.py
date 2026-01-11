@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 import os
 
 # Primary site for QR code – Cloudflare Pages (global CDN, fast everywhere)
-URL = "https://ysqrcode.pages.dev/"
+URL = "https://ysqrcode.pages.dev/?enter=1"
 
 def create_totoro_image(size=150):
     """Create a cute Totoro character image."""
